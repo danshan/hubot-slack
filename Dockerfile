@@ -3,7 +3,7 @@ MAINTAINER Dan <i@shanhh.com>
 
 ENV BOTDIR /opt/data/bot
 ENV HUBOT_USER hubot
-CMD echo '[]' > ${BOTDIR}/external-scripts.json
+CMD rm ${BOTDIR}/external-scripts.json
 
 USER ${HUBOT_USER}
 WORKDIR ${BOTDIR}
