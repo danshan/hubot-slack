@@ -10,16 +10,20 @@
 
 searchMap = (robot, msg) ->
   ak = process.env.BAIDU_MAP_AK
-  query = msg.match[1]
-  width = 640
-  height = 480
-  zoom = 17
+  query = encodeURIComponent msg.match[1]
+  width_l = 640
+  height_l = 480
+  width_s = 320
+  height_s = 240
+  zoom = 16
   msg.send({
     attachments: [{
       title: "map for #{query}",
+      title_link: "http://api.map.baidu.com/geocoder?address=#{query}&output=html"
       color: "good",
       fallback: "map for #{query}",
-      image_url: "http://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width}&height=#{height}&zoom=#{zoom}&markers=#{query}"
+      image_url: "http://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_l}&height=#{height_l}&zoom=#{zoom}&markers=#{query}"
+      thumb_url: "http://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_s}&height=#{height_s}&zoom=#{zoom}&markers=#{query}"
     }],
     username: process.env.HUBOT_NAME,
     as_user: true
