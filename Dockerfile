@@ -10,7 +10,7 @@ WORKDIR ${BOTDIR}
 CMD rm -rf scripts
 CMD rm -rf external-scripts.json
 
-CMD external-scripts.json external-scripts.json
+ADD external-scripts.json external-scripts.json
 ADD scripts scripts
 ENTRYPOINT ["/bin/sh", "-c", "bin/hubot -a slack -n '$HUBOT_NAME'"]
 
