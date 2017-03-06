@@ -3,12 +3,14 @@ MAINTAINER Dan <i@shanhh.com>
 
 ENV BOTDIR /opt/data/bot
 ENV HUBOT_USER hubot
-CMD rm -rf /opt/data/bot/external-scripts.json
 
 USER ${HUBOT_USER}
 WORKDIR ${BOTDIR}
 
 CMD rm -rf scripts
+CMD rm -rf external-scripts.json
+
+CMD external-scripts.json external-scripts.json
 ADD scripts scripts
 ENTRYPOINT ["/bin/sh", "-c", "bin/hubot -a slack -n '$HUBOT_NAME'"]
 
