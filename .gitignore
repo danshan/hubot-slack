@@ -70,5 +70,10 @@ nohup.out
 misc.prop
 tags
 *.bak
-*.log
-.logs
+
+bin
+package.json
+Procfile
+node_modules
+.hubot_history
+

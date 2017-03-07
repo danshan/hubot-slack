@@ -44,7 +44,7 @@ navigate = (robot, msg, mode) ->
   destination_region = msg.match[3]
   destination = msg.match[4]
 
-  console.log "mode=#{mode}, origin=#{origin}, dest=#{destination}"
+  console.log "mode=#{mode}, origin=#{origin_region} : #{origin}, dest=#{destination_region} : #{destination}"
   url = "http://api.map.baidu.com/direction/v1?mode=#{mode}&origin=#{origin}&destination=#{destination}&region=#{region}&origin_region=#{origin_region}&destination_region=#{destination_region}&output=json&ak=#{ak}"
   console.log url
 
@@ -61,10 +61,14 @@ navigate = (robot, msg, mode) ->
       msg.reply "Baidu says: #{json.message}"
       return
 
+    console.log "type=#{json.type}"
     if json.type == 2 # 起/终点唯一
-      navigateCertain msg, mode, reuslt
+      navigateCertain msg, mode, json.result
     else
-      navigateUncertain msg, mode, result
+      navigateUncertain msg, mode, json.result
+
+praseInstruction = (instructions) ->
+  return instructions.replace(/<b>/g, " *").replace(/<\/b>/g, "* ").replace(/<font.+?>/g, "").replace(/<\/font>/g, "")
 
 navigateCertain = (msg, mode, result) ->
   origin = result.origin
@@ -77,21 +81,23 @@ navigateCertain = (msg, mode, result) ->
     return
   attachments = []
   message = {
-    "text": "从 *#{origin.wd}* 到 *#{destination.wd}*"
+    text: "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元"
     username: process.env.HUBOT_NAME,
-    as_user: true
-    mrkdwnIn: ["text"]
+    as_user: true,
+    mrkdwn_in: ["text"]
   }
 
-  console.log JSON.stringify message
-  msg.reply message
-  #  for step in routes[0].steps
-  #    attachments.push({
-  #      text: "#{step.instructions}",
-  #      "mrkdwnIn": ["text"]
-  #    })
+  text = ""
+  for step in routes[0].steps
+    text += praseInstruction step.instructions + "\n"
 
-  message = {attachments:attachments}
+  attachments.push({
+    text: text,
+    color: "good",
+    mrkdwn_in: ["text"]
+  })
+
+  message.attachments = attachments
   console.log JSON.stringify message
   msg.reply message
 
