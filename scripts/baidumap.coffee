@@ -97,7 +97,7 @@ navigateCertain = (msg, mode, result) ->
     "mrkdwn_in": ["text"]
   })
 
-  message.attachments = attachments
+  message.attachments = JSON.stringify attachments
   console.log JSON.stringify message
   msg.reply message
 
