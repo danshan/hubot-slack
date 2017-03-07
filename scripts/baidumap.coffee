@@ -80,12 +80,7 @@ navigateCertain = (msg, mode, result) ->
     msg.reply "路线查询失败"
     return
   attachments = []
-  message = {
-    "text": "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元"
-    "username": process.env.HUBOT_NAME,
-    "as_user": true,
-    "mrkdwn_in": ["text"]
-  }
+
 
   text = ""
   for step in routes[0].steps
@@ -97,7 +92,13 @@ navigateCertain = (msg, mode, result) ->
     "mrkdwn_in": ["text"]
   })
 
-  message.attachments = JSON.stringify attachments
+  message = {
+    text: "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元",
+    attachments: JSON.stringify attachments,
+    username: process.env.HUBOT_NAME,
+    as_user: true,
+    mrkdwn_in: ["text"]
+  }
   console.log JSON.stringify message
   msg.reply message
 
