@@ -68,9 +68,7 @@ navigate = (robot, msg, mode) ->
       navigateUncertain msg, mode, json.result
 
 praseInstruction = (instructions) ->
-  return instructions.replace(/<b>/g, " *").replace(/<\/b>/g, "* ").replace(/<font.+?>/g, "*").replace(/<\/font>/g, "*")
-
-mergeSchemeSteps = (steps) ->
+  return instructions.replace(/<b>/g, " *").replace(/<\/b>/g, "* ").replace(/<font.+?>/g, "*").replace(/<\/font>/g, "*").replace(/\*\*/g, "*")
 
 mergeSteps = (steps) ->
   attaText = ""
