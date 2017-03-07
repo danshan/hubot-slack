@@ -20,11 +20,11 @@ searchMap = (robot, msg) ->
   msg.send({
     attachments: [{
       title: "#{title}",
-      title_link: "http://api.map.baidu.com/geocoder?address=#{query}&output=html"
+      title_link: "https://api.map.baidu.com/geocoder?address=#{query}&output=html"
       color: "good",
       fallback: "#{title}",
-      image_url: "http://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_l}&height=#{height_l}&zoom=#{zoom}&markers=#{query}",
-      thumb_url: "http://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_s}&height=#{height_s}&zoom=#{zoom}&markers=#{query}"
+      image_url: "https://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_l}&height=#{height_l}&zoom=#{zoom}&markers=#{query}",
+      thumb_url: "https://api.map.baidu.com/staticimage/v2?ak=#{ak}&center=#{query}&width=#{width_s}&height=#{height_s}&zoom=#{zoom}&markers=#{query}"
     }],
     username: process.env.HUBOT_NAME,
     as_user: true
