@@ -81,10 +81,10 @@ navigateCertain = (msg, mode, result) ->
     return
   attachments = []
   message = {
-    text: "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元"
-    username: process.env.HUBOT_NAME,
-    as_user: true,
-    mrkdwn_in: ["text"]
+    "text": "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元"
+    "username": process.env.HUBOT_NAME,
+    "as_user": true,
+    "mrkdwn_in": ["text"]
   }
 
   text = ""
@@ -92,9 +92,9 @@ navigateCertain = (msg, mode, result) ->
     text += praseInstruction step.instructions + "\n"
 
   attachments.push({
-    text: text,
-    color: "good",
-    mrkdwn_in: ["text"]
+    "text": text,
+    "color": "good",
+    "mrkdwn_in": ["text"]
   })
 
   message.attachments = attachments
