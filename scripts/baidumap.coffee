@@ -68,7 +68,24 @@ navigate = (robot, msg, mode) ->
       navigateUncertain msg, mode, json.result
 
 praseInstruction = (instructions) ->
-  return instructions.replace(/<b>/g, " *").replace(/<\/b>/g, "* ").replace(/<font.+?>/g, "").replace(/<\/font>/g, "")
+  return instructions.replace(/<b>/g, " *").replace(/<\/b>/g, "* ").replace(/<font.+?>/g, "*").replace(/<\/font>/g, "*")
+
+mergeSchemeSteps = (steps) ->
+
+mergeSteps = (steps) ->
+  attaText = ""
+  for step in steps
+    attaText += praseInstruction step.instructions + "\n"
+  return attaText
+
+mergeSchemeSteps = (steps) ->
+  attaText = ""
+  for step in steps # also array
+    for st in step
+      if st.stepInstruction != undefined
+        attaText += praseInstruction st.stepInstruction + "\n"
+  return attaText
+
 
 navigateCertain = (msg, mode, result) ->
   origin = result.origin
@@ -81,19 +98,32 @@ navigateCertain = (msg, mode, result) ->
     return
   attachments = []
 
+  if routes[0].scheme != undefined && routes[0].scheme.length > 0
+    attaText = mergeSchemeSteps routes[0].scheme[0].steps
+  else
+    attaText = mergeSteps routes[0].steps
 
-  text = ""
-  for step in routes[0].steps
-    text += praseInstruction step.instructions + "\n"
+  if !attaText
+    msg.reply "不支持的数据格式"
+    return
 
   attachments.push({
-    "text": text,
+    "text": attaText,
     "color": "good",
     "mrkdwn_in": ["text"]
   })
 
+  text = ""
+  if origin.wd!= undefined && destination.wd != undefined
+    text += "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}*"
+  if taxi != undefined
+    if text != ""
+      text += "\n"
+    text += "Taxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元"
+
+
   message = {
-    text: "从 *#{origin.cname} #{origin.wd}* 到 *#{destination.cname} #{destination.wd}* \nTaxi 全程 #{(taxi.distance).toLocaleString('en-US')}米, #{Math.ceil(taxi.duration/60)}分钟, #{taxi.detail[0].total_price}元",
+    text: text,
     attachments: JSON.stringify attachments,
     username: process.env.HUBOT_NAME,
     as_user: true,
@@ -111,7 +141,7 @@ module.exports = (robot) ->
   robot.respond /map?\s+(.+)/i, (msg) ->
     searchMap robot, msg
 
-  robot.respond /开车\s*从\s*(\S+)\s+(.+)\s*到\s*(\S+)\s+(.+)\s*/i, (msg) ->
+  robot.respond /(?:开车|驾车)\s*从\s*(\S+)\s+(.+)\s*到\s*(\S+)\s+(.+)\s*/i, (msg) ->
     navigate robot, msg, "driving"
 
   robot.respond /(?:走路|步行)\s*从\s*(\S+)\s+(.+)\s*到\s*(\S+)\s+(.+)\s*/i, (msg) ->
