@@ -7,7 +7,7 @@
 #   BAIDU_MAP_AK
 #
 # Commands:
-#   hubot map - 通过百度地图搜索指定位置
+#   hubot map <location> - 通过百度地图搜索指定位置
 #   hubot 开车从 <fromcity> <from> 到 <tocity> <to> - 驾车导航模式
 #   hubot 步行从 <fromcity> <from> 到 <tocity> <to> - 驾车导航模式
 #   hubot 骑车从 <fromcity> <from> 到 <tocity> <to> - 骑行导航模式
