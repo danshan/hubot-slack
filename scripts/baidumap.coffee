@@ -1,12 +1,22 @@
 # Description:
-#   Example scripts for you to examine and try out.
+#   查询百度地图信息
+#
+# Dependencies:
+#
+# Configuration:
+#   BAIDU_MAP_AK
+#
+# Commands:
+#   hubot map - 通过百度地图搜索指定位置
+#   hubot 开车从 <fromcity> <from> 到 <tocity> <to> - 驾车导航模式
+#   hubot 步行从 <fromcity> <from> 到 <tocity> <to> - 驾车导航模式
+#   hubot 骑车从 <fromcity> <from> 到 <tocity> <to> - 骑行导航模式
+#   hubot 公交从 <fromcity> <from> 到 <tocity> <to> - 公交导航模式
 #
 # Notes:
-#   They are commented out by default, because most of them are pretty silly and
-#   wouldn't be useful and amusing enough for day to day huboting.
-#   Uncomment the ones you want to try and experiment with.
 #
-#   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
+# Author:
+#   danshan
 
 querystring = require 'querystring'
 
