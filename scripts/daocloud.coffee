@@ -7,8 +7,11 @@
 #   DAOCLOUD_TOKEN
 #
 # Commands:
-#   hubot dc list apps - 获取用户的 app 列表
-#   hubot dc load app <app> - 获取单个 App
+#   hubot dc app list- 获取用户的 app 列表
+#   hubot dc app info <app_id> - 获取单个 App
+#   hubot dc app info <index> - 获取单个 App
+#   hubot dc app start|stop|restart <index> - 执行单个 App
+#   hubot dc app redeploy <index> <release_name> - 重新部署单个
 #
 # Notes:
 #
