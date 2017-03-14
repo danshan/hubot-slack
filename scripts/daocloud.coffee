@@ -7,11 +7,13 @@
 #   DAOCLOUD_TOKEN
 #
 # Commands:
-#   hubot dc app list- 获取用户的 app 列表
+#   hubot dc app list - 获取用户的 app 列表
 #   hubot dc app info <app_id> - 获取单个 App
 #   hubot dc app info <index> - 获取单个 App
 #   hubot dc app start|stop|restart <index> - 执行单个 App
-#   hubot dc app redeploy <index> <release_name> - 重新部署单个
+#   hubot dc app redeploy <index> <release_name> - 重新部署单个 App
+#   hubot dc app action <app_index> - 获取 App 的 Action
+#   hubot dc app action <app_index> <action_index> - 获取事件 Action
 #
 # Notes:
 #
@@ -21,6 +23,8 @@
 querystring = require 'querystring'
 
 appList = []
+actionList = {}
+appNameList = {}
 
 listApps = (msg) ->
   token = process.env.DAOCLOUD_TOKEN
@@ -43,6 +47,7 @@ listApps = (msg) ->
       index = appList.indexOf app.id
       if index == -1
         appList.push app.id
+        appNameList[app.id] = app.name
 
       index = appList.indexOf app.id
       attachments.push({
@@ -65,7 +70,7 @@ listApps = (msg) ->
     msg.reply message
 
 loadAppByIndex = (msg, index) ->
-  app_id = appList[index - 1]
+  app_id = appList[index]
   if !app_id
     msg.reply "app index not found."
     return
@@ -104,7 +109,7 @@ loadAppById = (msg, app_id) ->
     })
 
     message = {
-      text: "app info: #{app_id}"
+      text: "app info: *#{appNameList[app_id]}* #{app_id}"
       attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
@@ -113,8 +118,8 @@ loadAppById = (msg, app_id) ->
     console.log JSON.stringify message
     msg.reply message
 
-operateAppByIndex = (msg, index, action, release_name) ->
-  app_id = appList[index - 1]
+operateAppByIndex = (msg, app_index, action, release_name) ->
+  app_id = appList[app_index]
   if !app_id
     msg.reply "app index not found."
     return
@@ -142,17 +147,21 @@ operateAppByIndex = (msg, index, action, release_name) ->
       return
 
     action_id = json.action_id
+    if actionList.app_id == undefined
+      actionList.app_id = []
+    actionList.app_id.push(action_id)
+    action_index = actionList.app_id.indexOf action_id
 
     attachments = []
     attachments.push({
       title: "Action: #{action} #{app_id}",
-      text: "Action ID: *#{action_id}*",
+      text: "Action ID: `#{app_index + 1}` - `#{action_index + 1}` *#{action_id}*",
       color: "good",
       mrkdwn_in: ["text"]
     })
 
     message = {
-      text: "#{action} app: #{app_id}"
+      text: "#{action} app: #{app_index + 1}. *#{appNameList[app_id]}* #{app_id}"
       attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
@@ -160,6 +169,86 @@ operateAppByIndex = (msg, index, action, release_name) ->
     }
     console.log JSON.stringify message
     msg.reply message
+
+findActionByAppIndex = (msg, app_index) ->
+  app_id = appList[app_index]
+  if !app_id
+    msg.reply "app index not found."
+    return
+
+  if actionList.app_id == undefined
+    msg.reply "app has no action."
+    return
+
+  actions = actionList.app_id
+  start = 0
+  finish = actions.length - 1
+  if actions.length > 30
+    start = actions.length - 30
+
+  attachments = []
+  while finish >= start
+    attachments.push({
+      title: "#{finish + 1}. #{actions[finish]}",
+      color: "good",
+      mrkdwn_in: ["text"]
+    })
+    finish--
+
+  message = {
+    text: "action list: #{app_index + 1}. *#{appNameList[app_id]}* #{app_id}"
+    attachments: JSON.stringify attachments,
+      username: process.env.HUBOT_NAME,
+      as_user: true,
+      mrkdwn_in: ["text"]
+  }
+  console.log JSON.stringify message
+  msg.reply message
+
+loadActionByIndex = (msg, app_index, action_index) ->
+  app_id = appList[app_index]
+  if !app_id
+    msg.reply "app index not found."
+    return
+  action_id = actionList[app_id][action_index]
+  if !action_id
+    msg.reply "action index not found."
+    return
+
+  token = process.env.DAOCLOUD_TOKEN
+  url = "https://openapi.daocloud.io/v1/apps/#{app_id}/actions/#{action_id}"
+  req = msg.http(url)
+  req.header("Authorization", "token " + token)
+
+  req.get() (err, res, body) ->
+    if (err)
+      msg.reply "DaoCloud says: #{err}"
+      return
+
+    console.log body
+    json = JSON.parse(body)
+    if (res.statusCode < 200 || res.statusCode >= 300)
+      sendErr msg, json.error_id, json.message
+      return
+
+    attachments = []
+    attachments.push({
+      title: "#{json.action_name} #{json.state}",
+#      text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`\n*command:* #{command}\n*ports*: #{ports}",
+#      color: (chooseColor json.state),
+      mrkdwn_in: ["text"]
+    })
+
+    message = {
+      text: "action info: #{appNameList[app_id]} #{json.action_name}"
+      attachments: JSON.stringify attachments,
+        username: process.env.HUBOT_NAME,
+        as_user: true,
+        mrkdwn_in: ["text"]
+    }
+    console.log JSON.stringify message
+    msg.reply message
+
 
 chooseColor = (state) ->
   if /running/i.test state
@@ -190,10 +279,16 @@ module.exports = (robot) ->
     loadAppById msg, msg.match[1]
 
   robot.respond /dc\s+app\s+info\s+(\d+)/i, (msg) ->
-    loadAppByIndex msg, msg.match[1]
+    loadAppByIndex msg, msg.match[1] - 1
 
   robot.respond /dc\s+app\s+(start|stop|restart)\s+(\d+)/i, (msg) ->
-    operateAppByIndex msg, msg.match[2], msg.match[1]
+    operateAppByIndex msg, msg.match[2] - 1, msg.match[1]
 
   robot.respond /dc\s+app\s+(redeploy)\s+(\d+)\s+(\S+)/i, (msg) ->
-    operateAppByIndex msg, msg.match[2], msg.match[1], msg.match(3)
+    operateAppByIndex msg, msg.match[2] - 1, msg.match[1], msg.match(3)
+
+  robot.respond /dc\s+app\s+action\s+(\d+)/i, (msg) ->
+    findActionByAppIndex msg, msg.match[1] - 1
+
+  robot.respond /dc\s+app\s+action\s+(\d+)\s+(\d+)/i, (msg) ->
+    loadActionByIndex msg, msg.match[1] - 1, msg.match[2] - 1
