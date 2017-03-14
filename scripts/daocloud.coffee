@@ -7,11 +7,13 @@
 #   DAOCLOUD_TOKEN
 #
 # Commands:
-#   hubot dc app list- 获取用户的 app 列表
+#   hubot dc app list - 获取用户的 app 列表
 #   hubot dc app info <app_id> - 获取单个 App
 #   hubot dc app info <index> - 获取单个 App
 #   hubot dc app start|stop|restart <index> - 执行单个 App
-#   hubot dc app redeploy <index> <release_name> - 重新部署单个
+#   hubot dc app redeploy <index> <release_name> - 重新部署单个 App
+#   hubot dc app action <app_index> - 获取 App 的 Action
+#   hubot dc app action <app_index> <action_index> - 获取事件 Action
 #
 # Notes:
 #
@@ -21,6 +23,7 @@
 querystring = require 'querystring'
 
 appList = []
+actionList = {}
 
 listApps = (msg) ->
   token = process.env.DAOCLOUD_TOKEN
@@ -65,7 +68,7 @@ listApps = (msg) ->
     msg.reply message
 
 loadAppByIndex = (msg, index) ->
-  app_id = appList[index - 1]
+  app_id = appList[index]
   if !app_id
     msg.reply "app index not found."
     return
@@ -113,8 +116,8 @@ loadAppById = (msg, app_id) ->
     console.log JSON.stringify message
     msg.reply message
 
-operateAppByIndex = (msg, index, action, release_name) ->
-  app_id = appList[index - 1]
+operateAppByIndex = (msg, app_index, action, release_name) ->
+  app_id = appList[app_index]
   if !app_id
     msg.reply "app index not found."
     return
@@ -142,11 +145,15 @@ operateAppByIndex = (msg, index, action, release_name) ->
       return
 
     action_id = json.action_id
+    if actionList.app_id == undefined
+      actionList.app_id = []
+    actionList.app_id.push(action_id)
+    action_index = actionList.app_id.indexOf action_id
 
     attachments = []
     attachments.push({
       title: "Action: #{action} #{app_id}",
-      text: "Action ID: *#{action_id}*",
+      text: "Action ID: `#{app_index + 1}` - `#{action_index + 1}` *#{action_id}*",
       color: "good",
       mrkdwn_in: ["text"]
     })
@@ -160,6 +167,40 @@ operateAppByIndex = (msg, index, action, release_name) ->
     }
     console.log JSON.stringify message
     msg.reply message
+
+findActionByAppIndex = (msg, app_index) ->
+  app_id = appList[app_index]
+  if !app_id
+    msg.reply "app index not found."
+    return
+
+  if actionList.app_id == undefined
+    msg.reply "app has no action."
+    return
+
+  actions = actionList.app_id
+  start = 0
+  if actions.length > 30
+    start = actions.length - 30
+
+  attachments = []
+  while start < actions.length
+    attachments.push({
+      title: "#{start + 1}. #{actions[start]}",
+      color: "good",
+      mrkdwn_in: ["text"]
+    })
+    start++
+
+  message = {
+    text: "app action list: #{app_index + 1}. #{app_id}"
+    attachments: JSON.stringify attachments,
+      username: process.env.HUBOT_NAME,
+      as_user: true,
+      mrkdwn_in: ["text"]
+  }
+  console.log JSON.stringify message
+  msg.reply message
 
 chooseColor = (state) ->
   if /running/i.test state
@@ -190,10 +231,16 @@ module.exports = (robot) ->
     loadAppById msg, msg.match[1]
 
   robot.respond /dc\s+app\s+info\s+(\d+)/i, (msg) ->
-    loadAppByIndex msg, msg.match[1]
+    loadAppByIndex msg, msg.match[1] - 1
 
   robot.respond /dc\s+app\s+(start|stop|restart)\s+(\d+)/i, (msg) ->
-    operateAppByIndex msg, msg.match[2], msg.match[1]
+    operateAppByIndex msg, msg.match[2] - 1, msg.match[1]
 
   robot.respond /dc\s+app\s+(redeploy)\s+(\d+)\s+(\S+)/i, (msg) ->
-    operateAppByIndex msg, msg.match[2], msg.match[1], msg.match(3)
+    operateAppByIndex msg, msg.match[2] - 1 , msg.match[1], msg.match(3)
+
+  robot.respond /dc\s+app\s+action\s+(\d+)/i, (msg) ->
+    findActionByAppIndex msg, msg.match[1] - 1
+
+  robot.respond /dc\s+app\s+action\s+(\d+)\s+(\d+)/i, (msg) ->
+    loadActionByIndex msg, msg.match[1], msg.match[2]
