@@ -54,7 +54,6 @@ listApps = (msg) ->
         title: "#{index + 1}. #{app.name} : #{app.id}",
         text: "#{app.package.image} : *#{app.release_name}* : `#{app.state}`",
         fields: [
-          {title: "State", value: "#{app.state}", short: true},
           {title: "Last Operated", value: "#{new Date(app.last_operated_at).toLocaleString()}", short: true},
           {title: "Auto Redeploy", value: "#{app.enable_auto_redeploy}", short: true}
         ],
@@ -111,7 +110,6 @@ loadAppById = (msg, app_id) ->
       text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`"
       color: (chooseColor json.state),
       fields: [
-        {title: "State", value: "#{json.state}", short: true},
         {title: "Last Operated", value: "#{new Date(json.last_operated_at).toLocaleString()}", short: true},
         {title: "Auto Redeploy", value: "#{json.enable_auto_redeploy}", short: true}
         {title: "Command", value: "#{command}", short: false}
