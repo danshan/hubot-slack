@@ -272,23 +272,23 @@ sendErr = (msg, error_id, error_message) ->
   msg.reply message
 
 module.exports = (robot) ->
-  robot.respond /^\s*dc\s+app\s+list\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+list\s*$/i, (msg) ->
     listApps msg
 
-  robot.respond /^\s*dc\s+app\s+info\s+(\S+){36}\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+info\s+(\S+){36}\s*$/i, (msg) ->
     loadAppById msg, msg.match[1]
 
-  robot.respond /^\s*dc\s+app\s+info\s+(\d+)\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+info\s+(\d+)\s*$/i, (msg) ->
     loadAppByIndex msg, msg.match[1] - 1
 
-  robot.respond /^\s*dc\s+app\s+(start|stop|restart)\s+(\d+)\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+(start|stop|restart)\s+(\d+)\s*$/i, (msg) ->
     operateAppByIndex msg, msg.match[2] - 1, msg.match[1]
 
-  robot.respond /^\s*dc\s+app\s+(redeploy)\s+(\d+)\s+(\S+)\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+(redeploy)\s+(\d+)\s+(\S+)\s*$/i, (msg) ->
     operateAppByIndex msg, msg.match[2] - 1, msg.match[1], msg.match(3)
 
-  robot.respond /^\s*dc\s+app\s+action\s+(\d+)\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+action\s+(\d+)\s*$/i, (msg) ->
     findActionByAppIndex msg, msg.match[1] - 1
 
-  robot.respond /^\s*dc\s+app\s+action\s+(\d+)\s+(\d+)\s*$/i, (msg) ->
+  robot.respond /dc\s+app\s+action\s+(\d+)\s+(\d+)\s*$/i, (msg) ->
     loadActionByIndex msg, msg.match[1] - 1, msg.match[2] - 1
