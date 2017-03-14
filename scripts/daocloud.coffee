@@ -104,7 +104,7 @@ loadAppById = (msg, app_id) ->
     })
 
     message = {
-      text: "App Info: #{app_id}"
+      text: "app info: #{app_id}"
       attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
@@ -152,7 +152,8 @@ operateAppByIndex = (msg, index, action, release_name) ->
     })
 
     message = {
-      attachments: attachments,
+      text: "#{action} app: #{app_id}"
+      attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
       mrkdwn_in: ["text"]
