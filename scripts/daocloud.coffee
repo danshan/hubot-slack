@@ -210,7 +210,7 @@ loadActionByIndex = (msg, app_index, action_index) ->
   if !app_id
     msg.reply "app index not found."
     return
-  action_id = actionList[app_id][action_index]
+  action_id = actionList.app_id[action_index]
   if !action_id
     msg.reply "action index not found."
     return
