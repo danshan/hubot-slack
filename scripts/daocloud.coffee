@@ -17,6 +17,7 @@
 
 querystring = require 'querystring'
 
+appList = []
 
 listApps = (msg) ->
   token = process.env.DAOCLOUD_TOKEN
@@ -36,8 +37,13 @@ listApps = (msg) ->
 
     attachments = []
     for app in json.app
+      index = appList.indexOf app.id
+      if index == -1
+        appList.push app.id
+
+      index = appList.indexOf app.id
       attachments.push({
-        title: "#{app.name} : #{app.id}",
+        title: "#{index + 1}. #{app.name} : #{app.id}",
         text: "#{app.package.image} : *#{app.release_name}* : `#{app.state}`",
         color: (chooseColor app.state),
         mrkdwn_in: ["text"]
@@ -54,11 +60,17 @@ listApps = (msg) ->
     console.log JSON.stringify message
     msg.reply message
 
-loadApp = (msg) ->
-  query = msg.match[1]
+loadAppByIndex = (msg, index) ->
+  index = msg.match[1]
+  app_id = appList[index - 1]
+  if !app_id
+    msg.reply "app index not found."
+    return
+  loadAppById msg, app_id
 
+loadAppById = (msg, app_id) ->
   token = process.env.DAOCLOUD_TOKEN
-  url = "https://openapi.daocloud.io/v1/apps/#{query}"
+  url = "https://openapi.daocloud.io/v1/apps/#{app_id}"
   req = msg.http(url)
   req.header("Authorization", "token " + token)
 
@@ -122,5 +134,8 @@ module.exports = (robot) ->
   robot.respond /dc\s+list\s+apps/i, (msg) ->
     listApps msg
 
-  robot.respond /dc\s+load\s+app\s+(\S+)/i, (msg) ->
-    loadApp msg
+  robot.respond /dc\s+load\s+app\s+(\S+){36}/i, (msg) ->
+    loadAppById msg, msg.match[1]
+
+  robot.respond /dc\s+load\s+app\s+(\d+)/i, (msg) ->
+    loadAppByIndex msg, msg.match[1]
