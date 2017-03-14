@@ -232,15 +232,24 @@ loadActionByIndex = (msg, app_index, action_index) ->
       return
 
     attachments = []
-    attachments.push({
-      title: "#{json.action_name} #{json.state}",
-#      text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`\n*command:* #{command}\n*ports*: #{ports}",
-#      color: (chooseColor json.state),
+    attachment = {
+      title: "#{appNameList[app_id]} #{json.action_name} #{json.state}",
+      text: "App ID: *#{app_id}*\nAction ID: *#{action_id}*",
+      fields: [
+        {title: "Action Name", value: "#{json.action_name}", short: true},
+        {title: "State", value: "#{json.state}", short: true},
+        {title: "Time Cost", value: "#{json.time_cost_seconds}s", short: true},
+        {title: "Error Message", value: "#{json.error_info.message}", short: false},
+        {title: "Start Time", value: "#{new Date(json.start_date).toLocaleDateString()}", short: false},
+        {title: "End Time", value: "#{new Date(json.end_date).toLocaleString()}", short: false}
+      ],
+      color: (chooseColor json.state),
       mrkdwn_in: ["text"]
-    })
+    }
+    attachments.push(attachment)
 
     message = {
-      text: "action info: #{appNameList[app_id]} #{json.action_name}"
+      text: "action info: #{app_index + 1} #{appNameList[app_id]} #{app_id}"
       attachments: JSON.stringify attachments,
         username: process.env.HUBOT_NAME,
         as_user: true,
@@ -253,6 +262,10 @@ loadActionByIndex = (msg, app_index, action_index) ->
 chooseColor = (state) ->
   if /running/i.test state
     return "good"
+  if /success/i.test state
+    return "good"
+  if /failed/i.test state
+    return "danger"
   if /stopped/i.test state
     return "danger"
   return "warning"
