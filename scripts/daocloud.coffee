@@ -53,6 +53,11 @@ listApps = (msg) ->
       attachments.push({
         title: "#{index + 1}. #{app.name} : #{app.id}",
         text: "#{app.package.image} : *#{app.release_name}* : `#{app.state}`",
+        fields: [
+          {title: "State", value: "#{app.state}", short: true},
+          {title: "Last Operated", value: "#{new Date(app.last_operated_at).toLocaleString()}", short: true},
+          {title: "Auto Redeploy", value: "#{app.enable_auto_redeploy}", short: true}
+        ],
         color: (chooseColor app.state),
         mrkdwn_in: ["text"]
       })
@@ -103,8 +108,15 @@ loadAppById = (msg, app_id) ->
     attachments = []
     attachments.push({
       title: "#{json.name}",
-      text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`\n*command:* #{command}\n*ports*: #{ports}",
+      text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`"
       color: (chooseColor json.state),
+      fields: [
+        {title: "State", value: "#{json.state}", short: true},
+        {title: "Last Operated", value: "#{new Date(json.last_operated_at).toLocaleString()}", short: true},
+        {title: "Auto Redeploy", value: "#{json.enable_auto_redeploy}", short: true}
+        {title: "Command", value: "#{command}", short: false}
+        {title: "Ports", value: "#{ports}", short: false}
+      ],
       mrkdwn_in: ["text"]
     })
 
@@ -240,8 +252,8 @@ loadActionByIndex = (msg, app_index, action_index) ->
         {title: "State", value: "#{json.state}", short: true},
         {title: "Time Cost", value: "#{json.time_cost_seconds}s", short: true},
         {title: "Error Message", value: "#{json.error_info.message}", short: false},
-        {title: "Start Time", value: "#{new Date(json.start_date).toLocaleDateString()}", short: false},
-        {title: "End Time", value: "#{new Date(json.end_date).toLocaleString()}", short: false}
+        {title: "Start Time", value: "#{new Date(json.start_date).toLocaleString()}", short: true},
+        {title: "End Time", value: "#{new Date(json.end_date).toLocaleString()}", short: true}
       ],
       color: (chooseColor json.state),
       mrkdwn_in: ["text"]
@@ -249,7 +261,7 @@ loadActionByIndex = (msg, app_index, action_index) ->
     attachments.push(attachment)
 
     message = {
-      text: "action info: #{app_index + 1} #{appNameList[app_id]} #{app_id}"
+      text: "action info: #{app_index + 1}. #{appNameList[app_id]} #{app_id}"
       attachments: JSON.stringify attachments,
         username: process.env.HUBOT_NAME,
         as_user: true,
