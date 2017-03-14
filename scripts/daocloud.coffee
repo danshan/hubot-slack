@@ -55,7 +55,8 @@ listApps = (msg) ->
         break;
 
     message = {
-      attachments: attachments,
+      text: "App List"
+      attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
       mrkdwn_in: ["text"]
@@ -103,7 +104,8 @@ loadAppById = (msg, app_id) ->
     })
 
     message = {
-      attachments: attachments,
+      text: "App Info: #{app_id}"
+      attachments: JSON.stringify attachments,
       username: process.env.HUBOT_NAME,
       as_user: true,
       mrkdwn_in: ["text"]
