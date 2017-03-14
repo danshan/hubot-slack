@@ -7,8 +7,11 @@
 #   DAOCLOUD_TOKEN
 #
 # Commands:
-#   hubot dc list apps - 获取用户的 app 列表
-#   hubot dc load app <app> - 获取单个 App
+#   hubot dc app list- 获取用户的 app 列表
+#   hubot dc app info <app_id> - 获取单个 App
+#   hubot dc app info <index> - 获取单个 App
+#   hubot dc app start|stop|restart <index> - 执行单个 App
+#   hubot dc app redeploy <index> <release_name> - 重新部署单个
 #
 # Notes:
 #
@@ -61,7 +64,6 @@ listApps = (msg) ->
     msg.reply message
 
 loadAppByIndex = (msg, index) ->
-  index = msg.match[1]
   app_id = appList[index - 1]
   if !app_id
     msg.reply "app index not found."
@@ -79,8 +81,8 @@ loadAppById = (msg, app_id) ->
       msg.reply "DaoCloud says: #{err}"
       return
 
-    json = JSON.parse(body)
     console.log body
+    json = JSON.parse(body)
     if (res.statusCode < 200 || res.statusCode >= 300)
       sendErr msg, json.error_id, json.message
       return
@@ -97,6 +99,53 @@ loadAppById = (msg, app_id) ->
       title: "#{json.name}",
       text: "#{json.package.image} : *#{json.release_name}* : `#{json.state}`\n*command:* #{command}\n*ports*: #{ports}",
       color: (chooseColor json.state),
+      mrkdwn_in: ["text"]
+    })
+
+    message = {
+      attachments: attachments,
+      username: process.env.HUBOT_NAME,
+      as_user: true,
+      mrkdwn_in: ["text"]
+    }
+    console.log JSON.stringify message
+    msg.reply message
+
+operateAppByIndex = (msg, index, action, release_name) ->
+  app_id = appList[index - 1]
+  if !app_id
+    msg.reply "app index not found."
+    return
+
+  token = process.env.DAOCLOUD_TOKEN
+  url = "https://openapi.daocloud.io/v1/apps/#{app_id}/actions/#{action}"
+  req = msg.http(url)
+  req.header("Authorization", "token " + token)
+  if release_name
+    post_data = {}
+    post_data.release_name = release_name
+    post_str = JSON.stringify post_data
+  else
+    post_str = ""
+
+  req.post(post_str) (err, res, body) ->
+    if (err)
+      msg.reply "DaoCloud says: #{err}"
+      return
+
+    console.log body
+    json = JSON.parse(body)
+    if (res.statusCode < 200 || res.statusCode >= 300)
+      sendErr msg, json.error_id, json.message
+      return
+
+    action_id = json.action_id
+
+    attachments = []
+    attachments.push({
+      title: "Action: #{action} #{app_id}",
+      text: "Action ID: *#{action_id}*",
+      color: "good",
       mrkdwn_in: ["text"]
     })
 
@@ -131,11 +180,17 @@ sendErr = (msg, error_id, error_message) ->
   msg.reply message
 
 module.exports = (robot) ->
-  robot.respond /dc\s+list\s+apps/i, (msg) ->
+  robot.respond /dc\s+app\s+list/i, (msg) ->
     listApps msg
 
-  robot.respond /dc\s+load\s+app\s+(\S+){36}/i, (msg) ->
+  robot.respond /dc\s+app\s+info\s+(\S+){36}/i, (msg) ->
     loadAppById msg, msg.match[1]
 
-  robot.respond /dc\s+load\s+app\s+(\d+)/i, (msg) ->
+  robot.respond /dc\s+app\s+info\s+(\d+)/i, (msg) ->
     loadAppByIndex msg, msg.match[1]
+
+  robot.respond /dc\s+app\s+(start|stop|restart)\s+(\d+)/i, (msg) ->
+    operateAppByIndex msg, msg.match[2], msg.match[1]
+
+  robot.respond /dc\s+app\s+(redeploy)\s+(\d+)\s+(\S+)/i, (msg) ->
+    operateAppByIndex msg, msg.match[2], msg.match[1], msg.match(3)
