@@ -73,6 +73,7 @@ tags
 
 bin
 package.json
+package-lock.json
 Procfile
 node_modules
 .hubot_history
