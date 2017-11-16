@@ -19,15 +19,17 @@ module.exports = (robot) ->
   blog_names = process.env.HUBOT_TUMBLR_BLOG_NAMES.split(",")
   api_key   = process.env.HUBOT_TUMBLR_API_KEY
 
-  robot.respond /show (me )?tumblr blogs?/i, (msg) ->
+  robot.respond /show\s+(?:me\s+)?tumblr\s+names/i, (msg) ->
     txt = "choose blog names:\n"
     for name in blog_names
       txt += "#{name}\n"
     msg.reply txt
 
-  robot.respond /show (me )?tumblr (\S+)( (\d+))?/i, (msg) ->
-    blog_name = msg.match[2]
-    count = msg.match[4] || 1
+  robot.respond /show\s+(?:me\s+)?tumblr\s+(\S+)(?:\s+(\d+))?/i, (msg) ->
+    blog_name = msg.match[1]
+    count = msg.match[2] || 1
+    if blog_name == 'names'
+      return
 
     msg.http("http://api.tumblr.com/v2/blog/#{blog_name}.tumblr.com/posts/photo")
       .query(api_key: api_key, limit: count)
