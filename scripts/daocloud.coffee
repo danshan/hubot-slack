@@ -4,7 +4,7 @@
 # Dependencies:
 #
 # Configuration:
-#   DAOCLOUD_TOKEN
+#   HUBOT_DAOCLOUD_TOKEN
 #
 # Commands:
 #   hubot dc app list - 获取用户的 app 列表
@@ -27,7 +27,7 @@ actionList = {}
 appNameList = {}
 
 listApps = (msg) ->
-  token = process.env.DAOCLOUD_TOKEN
+  token = process.env.HUBOT_DAOCLOUD_TOKEN
   url = "https://openapi.daocloud.io/v1/apps"
   req = msg.http(url)
   req.header("Authorization", "token " + token)

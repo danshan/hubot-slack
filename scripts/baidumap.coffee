@@ -4,7 +4,7 @@
 # Dependencies:
 #
 # Configuration:
-#   BAIDU_MAP_AK
+#   HUBOT_BAIDU_MAP_AK
 #
 # Commands:
 #   hubot map <location> - 通过百度地图搜索指定位置
@@ -21,7 +21,7 @@
 querystring = require 'querystring'
 
 searchMap = (robot, msg) ->
-  ak = process.env.BAIDU_MAP_AK
+  ak = process.env.HUBOT_BAIDU_MAP_AK
   title = msg.match[1]
   query = querystring.escape title
   width_l = 320
