@@ -48,9 +48,8 @@ module.exports = (robot) ->
 
         posts = content.response.posts
 
-        if posts.length is 1
-          msg.send post.caption
-
         for post in posts
+          if posts.length is 1
+            msg.send post.summary
           for photo in post.photos
             msg.send photo.original_size.url
