@@ -1,13 +1,7 @@
 FROM danshan/hubot-docker
 MAINTAINER Dan <i@shanhh.com>
 
-RUN npm install -g hubot-slack
-
-ENV BOTDIR /opt/data/bot
-ENV HUBOT_USER hubot
-
-USER ${HUBOT_USER}
-WORKDIR ${BOTDIR}
+RUN npm install hubot-slack
 
 CMD rm -rf scripts
 CMD rm -rf external-scripts.json
