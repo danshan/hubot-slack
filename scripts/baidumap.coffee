@@ -146,7 +146,7 @@ navigateUncertain = (msg, mode, result) ->
 
 
 module.exports = (robot) ->
-  robot.respond /map?\s+(.+)/i, (msg) ->
+  robot.respond /map (.+)/i, (msg) ->
     searchMap robot, msg
 
   robot.respond /(?:开车|驾车)\s*从\s*(\S+)\s+(.+)\s*到\s*(\S+)\s+(.+)\s*/i, (msg) ->

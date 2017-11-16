@@ -9,6 +9,7 @@
 #   HUBOT_TUMBLR_API_KEY
 #
 # Commands:
+#   hubot show me tumblr names - Shows the suggested blog names
 #   hubot show me tumblr <count> - Shows the latest <count> tumblr photos (default is 1)
 #
 # Author:
