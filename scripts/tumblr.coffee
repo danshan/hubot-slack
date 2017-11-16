@@ -31,7 +31,7 @@ module.exports = (robot) ->
     if blog_name == 'names'
       return
 
-    msg.http("http://api.tumblr.com/v2/blog/#{blog_name}.tumblr.com/posts/photo")
+    msg.http("https://api.tumblr.com/v2/blog/#{blog_name}.tumblr.com/posts/photo")
       .query(api_key: api_key, limit: count)
       .get() (err, res, body) ->
 
@@ -47,8 +47,9 @@ module.exports = (robot) ->
 
         posts = content.response.posts
 
+        if posts.length is 1
+          msg.send post.summary
+
         for post in posts
-          if posts.length is 1
-            msg.send post.caption
           for photo in post.photos
             msg.send photo.original_size.url
