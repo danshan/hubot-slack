@@ -1,6 +1,8 @@
 FROM danshan/hubot-docker
 MAINTAINER Dan <i@shanhh.com>
 
+RUN npm install -g hubot-slack
+
 ENV BOTDIR /opt/data/bot
 ENV HUBOT_USER hubot
 
