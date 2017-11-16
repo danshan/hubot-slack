@@ -49,7 +49,7 @@ module.exports = (robot) ->
         posts = content.response.posts
 
         if posts.length is 1
-          msg.send post.summary
+          msg.send post.caption
 
         for post in posts
           for photo in post.photos
