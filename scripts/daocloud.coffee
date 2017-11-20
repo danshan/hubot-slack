@@ -261,9 +261,9 @@ loadActionByIndex = (msg, app_index, action_index) ->
     message = {
       text: "action info: #{app_index + 1}. #{appNameList[app_id]} #{app_id}"
       attachments: JSON.stringify attachments,
-        username: process.env.HUBOT_NAME,
-        as_user: true,
-        mrkdwn_in: ["text"]
+      username: process.env.HUBOT_NAME,
+      as_user: true,
+      mrkdwn_in: ["text"]
     }
     console.log JSON.stringify message
     msg.reply message
