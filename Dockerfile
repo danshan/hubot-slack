@@ -1,7 +1,7 @@
 FROM danshan/hubot-docker
 MAINTAINER Dan <i@shanhh.com>
 
-RUN npm install hubot-slack
+RUN npm install hubot-slack hubot-proxy-loader
 
 CMD rm -rf scripts
 CMD rm -rf external-scripts.json
