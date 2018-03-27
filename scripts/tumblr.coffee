@@ -28,7 +28,9 @@ buildPhotoAttachments = (msg, blog, post) ->
   attachments = []
   for photo in post.photos
     attachments.push({
-      "image_url": "#{photo.original_size.url}"
+      "author_name": "#{blog.name} - #{blog.title}",
+      "author_link": "#{blog.url}",
+      "image_url": "#{photo.original_size.url}",
       "thumb_url": "#{photo.alt_sizes[0].url}"
     })
   return attachments
@@ -37,9 +39,9 @@ buildVideoAttachments = (msg, blog, post) ->
   attachments = []
   if post.video_type == 'tumblr'
     attachments.push({
-      "author_name": "#{blog.name} - #{blog.title}"
-      "author_link": "#{blog.url}"
-      "image_url": "#{post.thumbnail_url}"
+      "author_name": "#{blog.name} - #{blog.title}",
+      "author_link": "#{blog.url}",
+      "image_url": "#{post.thumbnail_url}",
       "thumb_url": "#{post.video_url}"
     })
   else
@@ -61,9 +63,11 @@ queryBlogs = (msg, blogName, limit, mediaType) ->
     .get() (err, res, body) ->
 
       if err
+        console.log err
         msg.send "Tumblr says: #{err}"
         return
 
+      console.log body
       content = JSON.parse(body)
 
       if content.meta.status isnt 200
@@ -73,18 +77,17 @@ queryBlogs = (msg, blogName, limit, mediaType) ->
       posts = content.response.posts
 
       for post in posts
-        switch mediaType
+        switch post.type
           when 'photo' then attachments = buildPhotoAttachments(msg, content.response.blog, post)
           when 'video' then attachments = buildVideoAttachments(msg, content.response.blog, post)
           when 'text' then attachments = buildTextAttachments(msg, content.response.blog, post)
           when 'audio' then attachments = buildAudioAttachments(msg, content.response.blog, post)
           else
-            msg.reply "unknown media type: #{mediaType}"
-            return
+            continue
 
         message = {
-          text: "[LINK](#{post.post_url}) #{post.summary}"
-          attachments: JSON.stringify attachments
+          text: "<#{post.post_url} | #{post.slug}>",
+          attachments: JSON.stringify attachments,
           mrkdwn_in: ["text"]
         }
         msg.reply message
@@ -94,5 +97,5 @@ module.exports = (robot) ->
   robot.respond /show\s+(?:me\s+)?tumblr\s+names/i, (msg) ->
     queryNames msg
 
-  robot.respond /show\s+(?:me\s+)?tumblr\s+(\S+)(?:\s+(\d))?(?:\s+(video|photo|text|audio))?/i, (msg) ->
+  robot.respond /show\s+(?:me\s+)?tumblr\s+(\S+)(?:\s+(\d))?(?:\s+(video|photo|text|audio))?s/i, (msg) ->
     queryBlogs(msg, msg.match[1], msg.match[2] || 1, msg.match[3] || 'photo')

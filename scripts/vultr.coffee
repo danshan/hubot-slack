@@ -8,18 +8,22 @@ serverList = (msg) ->
 
   req.get() (err, res, body) ->
     if (err)
+      console.log err
       msg.reply "Vultr says: #{err}"
       return
 
     if (res.statusCode < 200 || res.statusCode >= 300)
+      console.log body
       sendErr msg, body
       return
 
+    console.log body
     json = JSON.parse(body)
     attachments = []
     for serverKey, server of json
       attachments.push({
         title: "#{server.SUBID}",
+        title_link: "#{server.kvm_url}",
         text: "*#{server.main_ip}* - `#{server.server_state}` - #{server.label}",
         fields: [
           {title: "SUBID", value: "#{server.SUBID}", short: true},
