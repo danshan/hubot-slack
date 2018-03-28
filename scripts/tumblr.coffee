@@ -75,6 +75,12 @@ queryBlogs = (msg, blogName, limit, mediaType) ->
         return
 
       posts = content.response.posts
+      if posts.length == 0
+        message = {
+          text: "Found no posts",
+        }
+        msg.reply message
+        return
 
       for post in posts
         switch post.type
@@ -94,8 +100,8 @@ queryBlogs = (msg, blogName, limit, mediaType) ->
 
 module.exports = (robot) ->
 
-  robot.respond /show\s+(?:me\s+)?tumblr\s+names/i, (msg) ->
+  robot.respond /show\s+(?:me\s+)?tumblr\s+blogs*/i, (msg) ->
     queryNames msg
 
-  robot.respond /show\s+(?:me\s+)?tumblr\s+(\S+)(?:\s+(\d))?(?:\s+(video|photo|text|audio))?s/i, (msg) ->
+  robot.respond /show\s+(?:me\s+)?tumblr\s+(\S+)\s+(\d+(?:\s+))?(photo|video|text|audio)(?:s)?\s*/i, (msg) ->
     queryBlogs(msg, msg.match[1], msg.match[2] || 1, msg.match[3] || 'photo')
